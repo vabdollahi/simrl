@@ -1,0 +1,27 @@
+# Build files
+build/
+*.o
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+
+# IDE and OS junk
+.vscode/
+.DS_Store
+*.swp
+
+# Model and export files
+*.engine
+*.onnx
+*.plan
+*.yaml
+
+# Python cache (if pybind11 later)
+__pycache__/
+*.pyc
+
+# Logs and output
+*.log
+logs/
