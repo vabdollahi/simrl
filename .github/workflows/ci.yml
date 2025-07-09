@@ -3,26 +3,34 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
+  build-test-cpu:
+    name: Build and tests on CPU
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
+
+      - name: Install deps
         run: sudo apt-get update && sudo apt-get install -y cmake g++
-      - name: Build
-        run: mkdir build && cd build && cmake .. && make
-      - name: Run tests
+
+      - name: Build on CPU
+        run: |
+          mkdir -p build && cd build
+          cmake .. -DUSE_CUDA=OFF
+          cmake --build .
+
+      - name: Run unit tests on CPU
         run: cd build && ctest --output-on-failure
 
   lint:
+    name: Lint (clang-format + clang-tidy)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install clang tools
+      - name: Install tools
         run: sudo apt-get update && sudo apt-get install -y clang-format clang-tidy
 
-      - name: Run clang-format (check only)
+      - name: Check clang-format
         run: |
           find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format -n --Werror
 
