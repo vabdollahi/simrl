@@ -1,5 +1,6 @@
 # Build files
 build/
+Testing/
 *.o
 *.a
 *.so
