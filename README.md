@@ -97,6 +97,27 @@ simrl/
 
 ---
 
+## 📘 Doxygen Documentation
+
+This project uses [Doxygen](https://www.doxygen.nl/) to generate C++ API documentation from annotated source code.
+
+### 🔧 Setup Instructions
+
+1. **Install Doxygen** (macOS):
+   ```bash
+   brew install doxygen
+   ```
+
+2. **Generate documentation**:
+   ```bash
+   doxygen Doxyfile
+   ```
+
+3. **View the docs**:
+   Open `docs/doxygen/html/index.html` in a browser, or find it [online](https://vabdollahi.github.io/simrl/).
+
+---
+
 ## 🔄 License
 
 Apache License 2.0
