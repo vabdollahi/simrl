@@ -6,32 +6,32 @@
 
 ## 📦 Requirements
 
-### Build Tools
+### 🔧 Build Tools
 - CMake ≥ 3.12
-- GCC/G++ ≥ 9 or Clang
+- GCC/G++ ≥ 9 or Clang (macOS supported)
 - CUDA Toolkit ≥ 12.0
 - Git
 
-### Optional Tools
-- Pybind11 (for Python bindings, later)
+### 🧪 Optional Tools
+- Catch2 (unit testing)
+- pybind11 (Python bindings, planned)
 - Docker (for reproducible builds)
-- Google Test or Catch2 (for testing)
-- MLflow / Weights & Biases (for MLOps)
+- MLflow / Weights & Biases (for MLOps integration)
 
 ---
 
-## ⚙️ Build & Test Instructions
+## ⚙️ Build & Test
 
 Clone and configure the project:
 
 ```bash
 git clone https://github.com/yourname/simrl.git
 cd simrl
-mkdir build && cd build
+mkdir -p build && cd build
 cmake ..
 ```
 
-Build the project (this will also build the tests):
+Build the project and tests:
 
 ```bash
 cmake --build .
@@ -43,19 +43,57 @@ Run the test suite:
 ctest --output-on-failure
 ```
 
-> 💡 Make sure your test targets are properly defined in `CMakeLists.txt` using `add_executable()` and `add_test()`.
+---
+
+## 🚀 Run the CLI
+
+```bash
+./build/simrl_cli
+```
+
+The CLI will be expanded to support training, evaluation, and config loading in future phases.
 
 ---
 
-## 🧱 Structure
+## 🧹 Linting
 
-- `src/`: Core C++/CUDA source
-- `include/`: Public headers
-- `tests/`: Unit and integration tests
-- `examples/`: Sample training code
-- `docker/`: Dockerfiles and container configs
-- `scripts/`: Helper scripts
-- `docs/`: Technical documentation
+Lint and format your code using:
+
+```bash
+./scripts/lint.sh
+```
+
+- Uses `clang-format` and `clang-tidy`
+- Automatically installs tools on macOS via Homebrew
+
+---
+
+## 🧱 Project Structure
+
+```
+simrl/
+├── src/                # Core C++/CUDA source (tensor, autograd, RL, CLI)
+├── include/            # Public headers
+├── tests/              # Unit and integration tests (Catch2)
+├── scripts/            # Linting, build, and dev tools
+├── examples/           # Training examples (future)
+├── docker/             # Docker and container config (future)
+├── docs/               # Technical docs and setup guides
+├── CMakeLists.txt      # CMake build config
+└── README.md
+```
+
+---
+
+## 💡 Roadmap Highlights
+
+- [x] CLI executable for training/testing
+- [x] Unit tests with Catch2
+- [x] Clang-based linting and CI
+- [ ] Core tensor & autograd engine (CUDA-backed)
+- [ ] PPO and rollout worker (GPU)
+- [ ] Simulator integration (Isaac Sim, ROS 2)
+- [ ] Distributed & edge deployment (Jetson Orin)
 
 ---
 

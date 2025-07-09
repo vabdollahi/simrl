@@ -1,2 +1,6 @@
 #include <iostream>
-int main() { std::cout << "SimRL start" << std::endl; return 0; }
+auto main() -> int
+{
+    std::cout << "SimRL start\n";
+    return 0;
+}

@@ -25,3 +25,6 @@ __pycache__/
 # Logs and output
 *.log
 logs/
+
+# Other
+*.zip

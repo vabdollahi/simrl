@@ -1,2 +1,6 @@
 #include <cassert>
-int main() { assert(true); return 0; }
+auto main() -> int
+{
+    assert(true);
+    return 0;
+}
