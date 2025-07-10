@@ -1,8 +1,5 @@
-# Catch2 test binary
-add_executable(test_tensor
-    test_tensor.cpp
-)
-
+# Catch2 CPU test binary
+add_executable(test_tensor test_tensor.cpp)
 target_link_libraries(test_tensor PRIVATE simrl)
 
 add_test(NAME test_tensor COMMAND test_tensor)

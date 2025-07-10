@@ -9,7 +9,7 @@
 ### 🔧 Build Tools
 - CMake ≥ 3.12
 - GCC/G++ ≥ 9 or Clang (macOS supported)
-- CUDA Toolkit ≥ 12.0
+- CUDA Toolkit ≥ 12.0 (for GPU builds)
 - Git
 
 ### 🧪 Optional Tools
@@ -22,24 +22,47 @@
 
 ## ⚙️ Build & Test
 
-Clone and configure the project:
+### 🔀 CPU vs CUDA Builds
+
+The project supports both CPU-only and CUDA-enabled builds using the `USE_CUDA` CMake option:
+
+- **CPU Build** (default):
+  ```bash
+  cmake .. -DUSE_CUDA=OFF
+  ```
+
+- **GPU Build**:
+  ```bash
+  cmake .. -DUSE_CUDA=ON
+  ```
+
+You can also use the convenience script:
 
 ```bash
-git clone https://github.com/yourname/simrl.git
-cd simrl
-mkdir -p build && cd build
-cmake ..
+# CPU build (default)
+./scripts/build.sh
+
+# GPU build
+./scripts/build.sh cuda
 ```
 
-Build the project and tests:
+This script automatically clears old CMake cache and rebuilds the project with the appropriate flags.
+
+---
+
+### 🧪 Run Tests
+
+To run tests:
 
 ```bash
-cmake --build .
+./scripts/test.sh         # For CPU
+./scripts/test.sh cuda    # For GPU (if available)
 ```
 
-Run the test suite:
+You can also run them manually:
 
 ```bash
+cd build
 ctest --output-on-failure
 ```
 
@@ -74,7 +97,7 @@ Lint and format your code using:
 simrl/
 ├── src/                # Core C++/CUDA source (tensor, autograd, RL, CLI)
 ├── include/            # Public headers
-├── tests/              # Unit and integration tests (Catch2)
+├── tests/              # Unit and integration tests (Catch2 + CUDA)
 ├── scripts/            # Linting, build, and dev tools
 ├── examples/           # Training examples (future)
 ├── docker/             # Docker and container config (future)
@@ -82,18 +105,6 @@ simrl/
 ├── CMakeLists.txt      # CMake build config
 └── README.md
 ```
-
----
-
-## 💡 Roadmap Highlights
-
-- [x] CLI executable for training/testing
-- [x] Unit tests with Catch2
-- [x] Clang-based linting and CI
-- [ ] Core tensor & autograd engine (CUDA-backed)
-- [ ] PPO and rollout worker (GPU)
-- [ ] Simulator integration (Isaac Sim, ROS 2)
-- [ ] Distributed & edge deployment (Jetson Orin)
 
 ---
 
@@ -115,6 +126,18 @@ This project uses [Doxygen](https://www.doxygen.nl/) to generate C++ API documen
 
 3. **View the docs**:
    Open `docs/doxygen/html/index.html` in a browser, or find it [online](https://vabdollahi.github.io/simrl/).
+
+---
+
+## 💡 Roadmap Highlights
+
+- [x] CLI executable for training/testing
+- [x] Unit tests with Catch2
+- [x] Clang-based linting and CI
+- [ ] Core tensor & autograd engine (CUDA-backed)
+- [ ] PPO and rollout worker (GPU)
+- [ ] Simulator integration (Isaac Sim, ROS 2)
+- [ ] Distributed & edge deployment (Jetson Orin)
 
 ---
 

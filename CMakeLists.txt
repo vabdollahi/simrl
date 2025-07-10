@@ -7,12 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+# Optional flags
+option(USE_CUDA "Enable CUDA support" OFF)
+option(BUILD_SIMRL_CLI "Build the simrl_cli executable" ON)
+
 # Include directories
 include_directories(include)
 
-# ---------------------------
-# Core Library
-# ---------------------------
+# Core library
 add_library(simrl STATIC
     src/tensor.cpp
     src/autograd.cpp
@@ -21,24 +23,42 @@ add_library(simrl STATIC
 
 target_include_directories(simrl PUBLIC include)
 
-# ---------------------------
-# CLI Executable (Optional)
-# ---------------------------
-option(BUILD_SIMRL_CLI "Build the simrl_cli executable" ON)
+# CUDA conditional logic
+if(USE_CUDA)
+  if(APPLE)
+    message(WARNING "CUDA requested, but macOS does not support CUDA. Skipping CUDA setup.")
+    target_compile_definitions(simrl PUBLIC USE_CUDA)
+  else()
+    find_package(CUDAToolkit REQUIRED)
+    enable_language(CUDA)
 
-if(BUILD_SIMRL_CLI AND EXISTS "${CMAKE_SOURCE_DIR}/src/simrl_cli.cpp")
-    add_executable(simrl_cli src/simrl_cli.cpp)
-    target_link_libraries(simrl_cli PRIVATE simrl)
+    # Set target GPU architectures
+    set(CMAKE_CUDA_ARCHITECTURES 70 75 86)
+
+    target_compile_definitions(simrl PUBLIC USE_CUDA)
+    target_link_libraries(simrl PUBLIC CUDA::cudart)
+    message(STATUS "CUDA support enabled")
+
+    # CUDA test
+    add_executable(test_tensor_cuda tests/test_tensor_cuda.cu)
+    target_link_libraries(test_tensor_cuda PRIVATE simrl)
+    add_test(NAME test_tensor_cuda COMMAND test_tensor_cuda)
+    set_tests_properties(test_tensor_cuda PROPERTIES LABELS "gpu")
+  endif()
+else()
+  message(STATUS "CUDA support disabled")
 endif()
 
-# ---------------------------
-# Testing
-# ---------------------------
+# CLI executable
+if(BUILD_SIMRL_CLI AND EXISTS "${CMAKE_SOURCE_DIR}/src/simrl_cli.cpp")
+  add_executable(simrl_cli src/simrl_cli.cpp)
+  target_link_libraries(simrl_cli PRIVATE simrl)
+endif()
+
+# Unit testing
 enable_testing()
 add_subdirectory(tests)
 
-# ---------------------------
-# Python Bindings (Future)
-# ---------------------------
+# Optional Python bindings (future)
 # find_package(pybind11 REQUIRED)
 # add_subdirectory(python)
