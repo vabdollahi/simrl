@@ -4,24 +4,13 @@
 #include <cstdint>
 #include <vector>
 
-namespace simrl
-{
+namespace simrl {
 
-enum class DeviceType : std::uint8_t
-{
-    CPU,
-    CUDA
-};
+enum class DeviceType : std::uint8_t { CPU, CUDA };
 
-enum class DType : std::uint8_t
-{
-    Float32,
-    Int32,
-    Bool
-};
+enum class DType : std::uint8_t { Float32, Int32, Bool };
 
-class Tensor
-{
+class Tensor {
   public:
     Tensor(const std::vector<size_t> &shape, DType dtype = DType::Float32,
            DeviceType device = DeviceType::CPU);

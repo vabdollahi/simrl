@@ -1,12 +1,10 @@
 #include "simrl/tensor.hpp"
 #include "simrl/utils/logging.hpp"
 
-auto main() -> int
-{
+auto main() -> int {
     using namespace simrl;
 
-    try
-    {
+    try {
         SIMRL_INFO("Creating default tensor (CPU, Float32) with shape {2, 3, 4}...");
         Tensor tensor({2, 3, 4});
 
@@ -22,9 +20,7 @@ auto main() -> int
         SIMRL_ASSERT(tensor.device() == DeviceType::CPU, "Default device should be CPU");
 
         SIMRL_INFO("CPU tensor test passed.");
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         SIMRL_ERROR(e.what());
         return 1;
     }

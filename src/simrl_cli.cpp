@@ -1,7 +1,6 @@
 #include <iostream>
 
-auto main(int argc, char **argv) -> int
-{
+auto main(int argc, char **argv) -> int {
     std::cout << "[SimRL CLI] Training started...\n";
 
     // Parse config file (TBD)
