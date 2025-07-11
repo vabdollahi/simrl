@@ -19,7 +19,7 @@ auto main() -> int {
 
         SIMRL_INFO("Testing zero...");
         tensor.zero();
-        auto *data_ptr = reinterpret_cast<float *>(tensor.data());
+        auto *data_ptr = tensor.as<float>();
         for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
             SIMRL_ASSERT(data_ptr[i] == 0.0F, "Zero failed at index " + std::to_string(i));
         }
@@ -28,7 +28,7 @@ auto main() -> int {
         Tensor src({DIM_0, DIM_1});
         src.zero();
         tensor.copy_from(src);
-        auto *dst_ptr = reinterpret_cast<float *>(tensor.data());
+        auto *dst_ptr = tensor.as<float>();
         for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
             SIMRL_ASSERT(dst_ptr[i] == 0.0F, "Copy_from failed at index " + std::to_string(i));
         }

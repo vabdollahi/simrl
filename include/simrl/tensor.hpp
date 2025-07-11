@@ -2,6 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 namespace simrl {
@@ -25,6 +27,25 @@ class Tensor {
     void zero();
     void copy_from(const Tensor &other);
     void reshape(const std::vector<size_t> &new_shape);
+
+    template <typename T> [[nodiscard]] auto as() -> T * {
+        if constexpr (std::is_same_v<T, float>) {
+            if (dtype_ != DType::Float32) {
+                throw std::runtime_error("Tensor dtype is not Float32");
+            }
+        } else if constexpr (std::is_same_v<T, int>) {
+            if (dtype_ != DType::Int32) {
+                throw std::runtime_error("Tensor dtype is not Int32");
+            }
+        } else if constexpr (std::is_same_v<T, bool>) {
+            if (dtype_ != DType::Bool) {
+                throw std::runtime_error("Tensor dtype is not Bool");
+            }
+        } else {
+            throw std::runtime_error("Unsupported type in Tensor::as<T>()");
+        }
+        return static_cast<T *>(data_);
+    }
 
   private:
     std::vector<size_t> shape_;
