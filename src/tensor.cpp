@@ -122,4 +122,11 @@ void Tensor::reshape(const std::vector<size_t> &new_shape) {
     compute_stride();
 }
 
+[[nodiscard]] auto Tensor::clone() const -> Tensor {
+    Tensor cloned_tensor(shape_, dtype_, device_);
+    SIMRL_ASSERT(cloned_tensor.data() != nullptr, "Tensor::clone() failed: memory allocation returned nullptr");
+    cloned_tensor.copy_from(*this);
+    return cloned_tensor;
+}
+
 } // namespace simrl

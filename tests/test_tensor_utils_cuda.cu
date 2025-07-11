@@ -59,6 +59,33 @@ void test_copy_from_cuda() {
     SIMRL_ASSERT(host_result, "CUDA copy_from() failed");
 }
 
+// test tensor clone functionality
+void test_clone_cuda() {
+    SIMRL_INFO("Testing clone() on CUDA tensor...");
+    Tensor original({DIM_0, DIM_1}, DType::Float32, DeviceType::CUDA);
+    original.zero();
+    Tensor clone = original.clone();
+
+    SIMRL_ASSERT(clone.is_cuda(), "Clone should be on CUDA device");
+    SIMRL_ASSERT(clone.shape() == original.shape(), "Clone shape mismatch");
+    SIMRL_ASSERT(clone.dtype() == original.dtype(), "Clone dtype mismatch");
+    SIMRL_ASSERT(clone.device() == original.device(), "Clone device mismatch");
+
+    bool* device_result;
+    bool host_result = true;
+    
+    SIMRL_CHECK(cudaMalloc(&device_result, sizeof(bool)));
+    SIMRL_CHECK(cudaMemcpy(device_result, &host_result, sizeof(bool), cudaMemcpyHostToDevice));
+    validate_zero_kernel<<<(NUM_ELEMENTS + 31) / 32, 32>>>(
+        clone.as<float>(), NUM_ELEMENTS, device_result
+    );
+    SIMRL_CHECK(cudaGetLastError());
+    SIMRL_CHECK(cudaMemcpy(&host_result, device_result, sizeof(bool), cudaMemcpyDeviceToHost));
+    SIMRL_CHECK(cudaFree(device_result));
+
+    SIMRL_ASSERT(host_result, "CUDA clone() failed");
+}
+
 auto main() -> int {
     try {
         test_zero_cuda();

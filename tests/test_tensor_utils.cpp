@@ -77,6 +77,19 @@ void test_copy_shape_mismatch() {
     }
 }
 
+void test_clone() {
+    SIMRL_INFO("Testing clone...");
+    Tensor original({DIM_0, DIM_1});
+    original.zero();
+    Tensor cloned = original.clone();
+    SIMRL_ASSERT(cloned.shape() == original.shape(), "Clone shape mismatch");
+    const auto *cloned_data = cloned.as<float>();
+    const auto *original_data = original.as<float>();
+    for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+        SIMRL_ASSERT(cloned_data[i] == original_data[i], "Clone data mismatch at index " + std::to_string(i));
+    }
+}
+
 auto main() -> int {
     try {
         test_reshape();

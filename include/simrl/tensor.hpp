@@ -27,6 +27,7 @@ class Tensor {
     void zero();
     void copy_from(const Tensor &other);
     void reshape(const std::vector<size_t> &new_shape);
+    [[nodiscard]] auto clone() const -> Tensor;
 
     template <typename T> [[nodiscard]] auto as() -> T * {
         if constexpr (std::is_same_v<T, float>) {
