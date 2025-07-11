@@ -12,6 +12,12 @@ enum class DeviceType : std::uint8_t { CPU, CUDA };
 
 enum class DType : std::uint8_t { Float32, Int32, Bool };
 
+#ifdef __CUDACC__
+#include <cuda_runtime.h>
+#else
+using cudaStream_t = void *;
+#endif
+
 class Tensor {
   public:
     Tensor(const std::vector<size_t> &shape, DType dtype = DType::Float32,
@@ -28,6 +34,7 @@ class Tensor {
     void copy_from(const Tensor &other);
     void reshape(const std::vector<size_t> &new_shape);
     [[nodiscard]] auto clone() const -> Tensor;
+    [[nodiscard]] auto to(DeviceType new_device, cudaStream_t stream = nullptr) const -> Tensor;
 
     template <typename T> [[nodiscard]] auto as() -> T * {
         if constexpr (std::is_same_v<T, float>) {

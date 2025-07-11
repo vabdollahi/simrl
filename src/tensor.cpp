@@ -124,9 +124,39 @@ void Tensor::reshape(const std::vector<size_t> &new_shape) {
 
 [[nodiscard]] auto Tensor::clone() const -> Tensor {
     Tensor cloned_tensor(shape_, dtype_, device_);
-    SIMRL_ASSERT(cloned_tensor.data() != nullptr, "Tensor::clone() failed: memory allocation returned nullptr");
+    SIMRL_ASSERT(cloned_tensor.data() != nullptr,
+                 "Tensor::clone() failed: memory allocation returned nullptr");
     cloned_tensor.copy_from(*this);
     return cloned_tensor;
 }
+
+[[nodiscard]] auto Tensor::to(DeviceType new_device, cudaStream_t stream) const -> Tensor {
+    SIMRL_ASSERT(new_device != device_, "Tensor::to() called with same device type");
+
+    Tensor new_tensor(shape_, dtype_, new_device);
+    SIMRL_ASSERT(new_tensor.data() != nullptr,
+                 "Tensor::to() failed: memory allocation returned nullptr");
+
+#ifdef USE_CUDA
+    const size_t total_bytes = numel_ * dtype_size(dtype_);
+    cudaMemcpyKind kind;
+
+    if (device_ == DeviceType::CPU && new_device == DeviceType::CUDA) {
+        kind = cudaMemcpyHostToDevice;
+    } else if (device_ == DeviceType::CUDA && new_device == DeviceType::CPU) {
+        kind = cudaMemcpyDeviceToHost;
+    } else {
+        SIMRL_ASSERT(false, "Unsupported device type conversion in Tensor::to()");
+    }
+
+    SIMRL_CHECK(cudaMemcpyAsync(new_tensor.data_, data_, total_bytes, kind, stream));
+#else
+    (void)stream;
+    SIMRL_ASSERT(false, "CUDA support not enabled in this build");
+#endif
+
+    return new_tensor;
+}
+
 
 } // namespace simrl

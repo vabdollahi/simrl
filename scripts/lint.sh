@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-ß
-# Just lint
-# ./scripts/lint.sh
 
-# Lint and fix issues where safe
-#./scripts/lint.sh --fix
+# Just lint:
+#   ./scripts/lint.sh
+# Lint and auto-fix issues where safe:
+#   ./scripts/lint.sh --fix
 
 set -e
 
@@ -53,31 +52,44 @@ install_if_missing clang-format
 install_if_missing clang-tidy
 
 # ---------------------------
+# 🔍 Determine Lint Mode
+# ---------------------------
+FIX_CLANG=0
+if [[ "$1" == "--fix" ]]; then
+    FIX_CLANG=1
+    echo "🛠️  Auto-fix mode enabled"
+fi
+
+# ---------------------------
 # 🧼 Run clang-format
 # ---------------------------
-echo "🎯 Running clang-format..."
-find src include tests -name "*.cpp" -o -name "*.hpp" -print0 | xargs -0 clang-format -i
+if [[ $FIX_CLANG -eq 1 ]]; then
+    FORMAT_FLAG="-i"
+else
+    FORMAT_FLAG="-n --Werror"
+fi
+
+echo "🎯 Running clang-format with flags: $FORMAT_FLAG"
+find src include tests -name "*.cpp" -o -name "*.hpp" -print0 | xargs -0 clang-format $FORMAT_FLAG --style=file
 
 # ---------------------------
 # 🧠 Run clang-tidy
 # ---------------------------
-FIX_FLAG=""
-if [[ "$1" == "--fix" ]]; then
-    echo "🛠️  Auto-fix mode enabled"
-    FIX_FLAG="-fix"
-fi
-
-# Ensure compile_commands.json exists
-if [ ! -f build/compile_commands.json ]; then
+if [[ ! -f build/compile_commands.json ]]; then
     echo "⚙️  Generating compile_commands.json..."
     mkdir -p build
     cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B build
 fi
 
-echo "🔎 Running clang-tidy..."
+TIDY_FIX_FLAG=""
+if [[ $FIX_CLANG -eq 1 ]]; then
+    TIDY_FIX_FLAG="-fix"
+fi
+
+echo "🔎 Running clang-tidy with flags: $TIDY_FIX_FLAG"
 find src include tests -name "*.cpp" | while read -r file; do
     echo "🔍 Analyzing $file"
-    clang-tidy $FIX_FLAG "$file" -- -Iinclude
+    clang-tidy $TIDY_FIX_FLAG "$file" -- -Iinclude
 done
 
 echo "✅ Linting complete!"

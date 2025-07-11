@@ -86,7 +86,8 @@ void test_clone() {
     const auto *cloned_data = cloned.as<float>();
     const auto *original_data = original.as<float>();
     for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
-        SIMRL_ASSERT(cloned_data[i] == original_data[i], "Clone data mismatch at index " + std::to_string(i));
+        SIMRL_ASSERT(cloned_data[i] == original_data[i],
+                     "Clone data mismatch at index " + std::to_string(i));
     }
 }
 
