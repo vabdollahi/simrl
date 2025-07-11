@@ -10,7 +10,7 @@ set -e
 echo "🔍 Checking for clang-format and clang-tidy..."
 
 # ---------------------------
-# 🔧 Detect Shell Config
+# 🔧 Detect Shell Config (used only for local PATH hints)
 # ---------------------------
 detect_shell_config() {
     if [[ $SHELL == *"zsh" ]]; then
@@ -23,7 +23,7 @@ detect_shell_config() {
 }
 
 # ---------------------------
-# 🧪 Install Missing Tools
+# 🧪 Install Missing Tools (local only)
 # ---------------------------
 install_if_missing() {
     if ! command -v "$1" &> /dev/null; then
@@ -48,8 +48,11 @@ install_if_missing() {
     fi
 }
 
-install_if_missing clang-format
-install_if_missing clang-tidy
+# Skip install in CI
+if [[ -z "$CI" ]]; then
+    install_if_missing clang-format
+    install_if_missing clang-tidy
+fi
 
 # ---------------------------
 # 🔍 Determine Lint Mode
