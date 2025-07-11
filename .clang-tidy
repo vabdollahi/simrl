@@ -5,3 +5,5 @@ FormatStyle: file
 CheckOptions:
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
+  - key: readability-simplify-boolean-expr.IgnoreMacros
+    value: true

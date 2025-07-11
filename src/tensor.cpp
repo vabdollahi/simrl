@@ -133,4 +133,15 @@ void Tensor::copy_from(const Tensor &other)
     }
 }
 
+void Tensor::reshape(const std::vector<size_t> &new_shape)
+{
+    SIMRL_ASSERT(!new_shape.empty(), "Reshape target shape must be non-empty");
+
+    size_t new_numel = std::accumulate(new_shape.begin(), new_shape.end(), 1UL, std::multiplies<>());
+    SIMRL_ASSERT(new_numel == numel_, "Total number of elements must remain unchanged in reshape()");
+
+    shape_ = new_shape;
+    compute_stride();
+}
+
 } // namespace simrl

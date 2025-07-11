@@ -35,6 +35,7 @@ class Tensor
 
     void zero();
     void copy_from(const Tensor &other);
+    void reshape(const std::vector<size_t> &new_shape);
 
   private:
     std::vector<size_t> shape_;

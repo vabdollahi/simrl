@@ -18,12 +18,11 @@ include_directories(include)
 add_library(simrl STATIC
     src/tensor.cpp
     src/autograd.cpp
-    # Add more core source files here as needed
+    # Add more core source files here
 )
-
 target_include_directories(simrl PUBLIC include)
 
-# CUDA conditional logic
+# CUDA configuration (no test binaries here)
 if(USE_CUDA)
   if(APPLE)
     message(WARNING "CUDA requested, but macOS does not support CUDA. Skipping CUDA setup.")
@@ -31,19 +30,10 @@ if(USE_CUDA)
   else()
     find_package(CUDAToolkit REQUIRED)
     enable_language(CUDA)
-
-    # Set target GPU architectures
     set(CMAKE_CUDA_ARCHITECTURES 70 75 86)
-
     target_compile_definitions(simrl PUBLIC USE_CUDA)
     target_link_libraries(simrl PUBLIC CUDA::cudart)
     message(STATUS "CUDA support enabled")
-
-    # CUDA test
-    add_executable(test_tensor_cuda tests/test_tensor_cuda.cu)
-    target_link_libraries(test_tensor_cuda PRIVATE simrl)
-    add_test(NAME test_tensor_cuda COMMAND test_tensor_cuda)
-    set_tests_properties(test_tensor_cuda PROPERTIES LABELS "gpu")
   endif()
 else()
   message(STATUS "CUDA support disabled")
@@ -55,10 +45,6 @@ if(BUILD_SIMRL_CLI AND EXISTS "${CMAKE_SOURCE_DIR}/src/simrl_cli.cpp")
   target_link_libraries(simrl_cli PRIVATE simrl)
 endif()
 
-# Unit testing
+# Unit tests
 enable_testing()
 add_subdirectory(tests)
-
-# Optional Python bindings (future)
-# find_package(pybind11 REQUIRED)
-# add_subdirectory(python)
