@@ -25,8 +25,8 @@ jobs:
           sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-20 100
           sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-20 100
 
-      - name: Make lint script executable
-        run: chmod +x scripts/lint.sh
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
 
       - name: Run lint script
         run: ./scripts/lint.sh
@@ -41,14 +41,14 @@ jobs:
       - name: Install deps
         run: sudo apt-get update && sudo apt-get install -y cmake g++
 
-      - name: Build on CPU
-        run: |
-          mkdir -p build && cd build
-          cmake .. -DUSE_CUDA=OFF
-          cmake --build .
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
 
-      - name: Run unit tests on CPU
-        run: cd build && ctest --output-on-failure
+      - name: Build (CPU)
+        run: ./scripts/build.sh
+
+      - name: Run unit tests (CPU)
+        run: ./scripts/test.sh --verbose
 
   build-test-gpu:
     name: Build and test on GPU
@@ -66,11 +66,11 @@ jobs:
       - name: Install deps
         run: sudo apt-get update && sudo apt-get install -y cmake g++
 
-      - name: Build (CUDA)
-        run: |
-          mkdir -p build && cd build
-          cmake .. -DUSE_CUDA=ON
-          cmake --build .
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
 
-      - name: Run Unit Tests (GPU)
-        run: cd build && ctest --output-on-failure
+      - name: Build (CUDA)
+        run: ./scripts/build.sh cuda
+
+      - name: Run unit tests (GPU)
+        run: ./scripts/test.sh --cuda --verbose
