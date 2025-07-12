@@ -86,24 +86,42 @@ void test_clone_cuda() {
     SIMRL_ASSERT(host_result, "CUDA clone() failed");
 }
 
-void test_tensor_to_transfer() {
-    SIMRL_INFO("Testing to() for CPU <-> CUDA transfer...");
+void test_tensor_to_transfer(bool use_stream) {
+    SIMRL_INFO("Testing to() for CPU <-> CUDA transfer"
+               + std::string(use_stream ? " [async]" : " [sync]"));
 
-    // Step 1: Create and zero-initialize CPU tensor
+    // Step 1: Create and initialize CPU tensor
     Tensor cpu_tensor({DIM_0, DIM_1}, DType::Float32, DeviceType::CPU);
     cpu_tensor.zero();
     float* cpu_ptr = cpu_tensor.as<float>();
     for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
-        cpu_ptr[i] = static_cast<float>(i);  // Fill with distinct values
+        cpu_ptr[i] = static_cast<float>(i);
     }
 
-    // Step 2: Transfer to CUDA
-    Tensor cuda_tensor = cpu_tensor.to(DeviceType::CUDA);
-    SIMRL_ASSERT(cuda_tensor.device() == DeviceType::CUDA, "CUDA tensor should be on CUDA");
+    Tensor cuda_tensor(DeviceType::CPU);
+    Tensor cpu_tensor_back(DeviceType::CUDA);
 
-    // Step 3: Transfer back to CPU
-    Tensor cpu_tensor_back = cuda_tensor.to(DeviceType::CPU);
-    SIMRL_ASSERT(cpu_tensor_back.device() == DeviceType::CPU, "Returned tensor should be on CPU");
+    if (use_stream) {
+        cudaStream_t stream;
+        SIMRL_CHECK(cudaStreamCreate(&stream));
+
+        // CPU → CUDA
+        cuda_tensor = cpu_tensor.to(DeviceType::CUDA, stream);
+
+        // CUDA → CPU
+        cpu_tensor_back = cuda_tensor.to(DeviceType::CPU, stream);
+
+        // Ensure transfers complete
+        SIMRL_CHECK(cudaStreamSynchronize(stream));
+        SIMRL_CHECK(cudaStreamDestroy(stream));
+    } else {
+        // Sync version
+        cuda_tensor = cpu_tensor.to(DeviceType::CUDA);
+        cpu_tensor_back = cuda_tensor.to(DeviceType::CPU);
+    }
+
+    SIMRL_ASSERT(cuda_tensor.device() == DeviceType::CUDA, "Tensor should be on CUDA");
+    SIMRL_ASSERT(cpu_tensor_back.device() == DeviceType::CPU, "Tensor should be on CPU");
 
     // Step 4: Compare values
     float* back_ptr = cpu_tensor_back.as<float>();
@@ -112,7 +130,7 @@ void test_tensor_to_transfer() {
                      "Data mismatch after to() transfer at index " + std::to_string(i));
     }
 
-    SIMRL_INFO("✅ Tensor to() transfer test passed.");
+    SIMRL_INFO("✅ Tensor to() transfer " + std::string(use_stream ? "[async]" : "[sync]") + " passed.");
 }
 
 
@@ -121,7 +139,8 @@ auto main() -> int {
         test_zero_cuda();
         test_copy_from_cuda();
         test_clone_cuda();
-        test_tensor_to_transfer();
+        test_tensor_to_transfer(false);  // test blocking to()
+        test_tensor_to_transfer(true);   // test async to()
         SIMRL_INFO("✅ All CUDA tensor utility tests passed.");
     } catch (const std::exception& e) {
         SIMRL_ERROR(e.what());

@@ -34,7 +34,8 @@ class Tensor {
     void copy_from(const Tensor &other);
     void reshape(const std::vector<size_t> &new_shape);
     [[nodiscard]] auto clone() const -> Tensor;
-    [[nodiscard]] auto to(DeviceType new_device, cudaStream_t stream = nullptr) const -> Tensor;
+    [[nodiscard]] auto to(DeviceType new_device) const -> Tensor;                      // blocking
+    [[nodiscard]] auto to(DeviceType new_device, cudaStream_t stream) const -> Tensor; // async
 
     template <typename T> [[nodiscard]] auto as() -> T * {
         if constexpr (std::is_same_v<T, float>) {

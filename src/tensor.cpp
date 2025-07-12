@@ -130,6 +130,18 @@ void Tensor::reshape(const std::vector<size_t> &new_shape) {
     return cloned_tensor;
 }
 
+// Blocking version
+[[nodiscard]] auto Tensor::to(DeviceType new_device) const -> Tensor {
+#ifdef USE_CUDA
+    return this->to(new_device, nullptr);
+#else
+    (void)new_device;
+    SIMRL_ASSERT(false, "CUDA support not enabled in this build");
+    return *this;  // Avoid compiler warning
+#endif
+}
+
+// Async version
 [[nodiscard]] auto Tensor::to(DeviceType new_device, cudaStream_t stream) const -> Tensor {
     SIMRL_ASSERT(new_device != device_, "Tensor::to() called with same device type");
 
